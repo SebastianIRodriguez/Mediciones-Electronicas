@@ -33,12 +33,18 @@
 const uint32_t g_Adc16_12bitFullRange = 4096U;
 volatile uint32_t last_conversion_value;
 volatile uint32_t tara = 0;
-const float k_instr = 1f;
+const float k_instr = 1.0f;
 //const float k_instr = 1000f/2652f; //Este seria el valor que tendriamos que usar para mostrar gr.
 
 /*******************************************************************************
  * Code
  ******************************************************************************/
+
+void handle_measured_weight(uint32_t adc_value) {
+    float weight = (adc_value - tara) * k_instr;
+    //FIJATE QUE ACA CREO QUE HABIA QUE HACER ALGO PARA PODER MOSTRAR LOS FLOTANTES
+    PRINTF("Peso: %.0f", weight);
+}
 
 void ADC0_IRQHandler(void)
 {
@@ -47,13 +53,6 @@ void ADC0_IRQHandler(void)
     handle_measured_weight(g_Adc16ConversionValue);
     last_conversion_value = g_Adc16ConversionValue;
 }
-
-void handle_measured_weight(uint32_t adc_value) {
-    float weight = (adc_value - tara) * k_instr;
-    //FIJATE QUE ACA CREO QUE HABIA QUE HACER ALGO PARA PODER MOSTRAR LOS FLOTANTES
-    PRINTF("Peso: %.0f", weight); 
-}
-
 
 int main(void)
 {

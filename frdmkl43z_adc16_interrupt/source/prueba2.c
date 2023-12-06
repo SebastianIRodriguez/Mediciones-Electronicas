@@ -29,18 +29,11 @@
  * Variables
  ******************************************************************************/
 const uint32_t g_Adc16_12bitFullRange = 4096U;
-const float k_instr = 1f;
+const float k_instr = 1.0f;
 
 /*******************************************************************************
  * Code
  ******************************************************************************/
-
-void ADC0_IRQHandler(void)
-{
-    /* Read conversion result to clear the conversion completed flag. */
-    uint32_t g_Adc16ConversionValue = ADC16_GetChannelConversionValue(ADC16_BASE, DEMO_ADC16_CHANNEL_GROUP);
-    handle_measured_weight(g_Adc16ConversionValue);
-}
 
 void handle_measured_weight(uint32_t adc_value) {
     uint32_t tara = 0;
@@ -49,6 +42,13 @@ void handle_measured_weight(uint32_t adc_value) {
     PRINTF("Peso: %.0f", weight); 
 }
 
+
+void ADC0_IRQHandler(void)
+{
+    /* Read conversion result to clear the conversion completed flag. */
+    uint32_t g_Adc16ConversionValue = ADC16_GetChannelConversionValue(ADC16_BASE, DEMO_ADC16_CHANNEL_GROUP);
+    handle_measured_weight(g_Adc16ConversionValue);
+}
 
 int main(void)
 {
