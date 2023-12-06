@@ -34,7 +34,7 @@ const uint32_t g_Adc16_12bitFullRange = 4096U;
 volatile uint32_t last_conversion_value;
 volatile uint32_t tara = 0;
 const float k_instr = 1f;
-//const float k_instr = 1000f/4096f; //Este seria el valor que tendriamos que usar para mostrar gr.
+//const float k_instr = 1000f/2652f; //Este seria el valor que tendriamos que usar para mostrar gr.
 
 /*******************************************************************************
  * Code
