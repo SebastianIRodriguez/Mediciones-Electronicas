@@ -72,7 +72,7 @@ int main(void)
     ADC16_GetDefaultConfig(&adc16ConfigStruct);
 
     adc16ConfigStruct.referenceVoltageSource = kADC16_ReferenceVoltageSourceValt;
-    adc16ConfigStruct.clockSource = kADC16_ClockSourceAsynchronousClock;
+    adc16ConfigStruct.clockSource = kADC16_ClockSourceAlt1; // BUSCLK / 2
     adc16ConfigStruct.enableAsynchronousClock = true;
     adc16ConfigStruct.clockDivider = kADC16_ClockDivider8;
     adc16ConfigStruct.resolution = kADC16_ResolutionSE12Bit;
@@ -80,7 +80,7 @@ int main(void)
     adc16ConfigStruct.enableHighSpeed = false;
     adc16ConfigStruct.enableLowPower = false;
     adc16ConfigStruct.enableContinuousConversion = true;
-
+    
     ADC16_Init(ADC16_BASE, &adc16ConfigStruct);
     ADC16_EnableHardwareTrigger(ADC16_BASE, false); /* Make sure the software trigger is used. */
 

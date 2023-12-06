@@ -65,7 +65,7 @@ int main(void)
     ADC16_GetDefaultConfig(&adc16ConfigStruct);
 
     adc16ConfigStruct.referenceVoltageSource = kADC16_ReferenceVoltageSourceValt;
-    adc16ConfigStruct.clockSource = kADC16_ClockSourceAsynchronousClock;
+    adc16ConfigStruct.clockSource = kADC16_ClockSourceAlt1; // BUSCLK / 2
     adc16ConfigStruct.enableAsynchronousClock = true;
     adc16ConfigStruct.clockDivider = kADC16_ClockDivider8;
     adc16ConfigStruct.resolution = kADC16_ResolutionSE12Bit;
