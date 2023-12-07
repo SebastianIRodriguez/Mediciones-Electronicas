@@ -12,6 +12,8 @@
 
 #include "pin_mux.h"
 #include "clock_config.h"
+#include "SD2_board.h"
+#include "key.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -30,25 +32,25 @@
  ******************************************************************************/
 const uint32_t g_Adc16_12bitFullRange = 4096U;
 const float k_instr = 1.0f;
-
+volatile uint32_t last_conversion_value;
+volatile uint32_t tara;
 /*******************************************************************************
  * Code
  ******************************************************************************/
-
+/*
 void handle_measured_weight(uint32_t adc_value) {
     uint32_t tara = 0;
-    int weight = adc_value - tara;
+    weight = adc_value - tara;
     //float weight = (adc_value - tara) * k_instr;
     //FIJATE QUE ACA CREO QUE HABIA QUE HACER ALGO PARA PODER MOSTRAR LOS FLOTANTES
-    PRINTF("Peso: %d\r\n", weight);
-}
 
+}*/
 
 void ADC0_IRQHandler(void)
 {
     /* Read conversion result to clear the conversion completed flag. */
     uint32_t g_Adc16ConversionValue = ADC16_GetChannelConversionValue(ADC16_BASE, DEMO_ADC16_CHANNEL_GROUP);
-    handle_measured_weight(g_Adc16ConversionValue);
+    last_conversion_value = g_Adc16ConversionValue;
 }
 
 int main(void)
@@ -60,6 +62,11 @@ int main(void)
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
     EnableIRQ(ADC16_IRQn);
+
+    board_init();
+    key_init();
+
+    SysTick_Config(SystemCoreClock / 1000U);
 
     PRINTF("\r\nBALANZA DIGITAL - Made by Rafagani and Co.\r\n");
 
@@ -81,12 +88,30 @@ int main(void)
     adc16ChannelConfigStruct.channelNumber                        = DEMO_ADC16_USER_CHANNEL;
     adc16ChannelConfigStruct.enableInterruptOnConversionCompleted = true; /* Enable the interrupt. */
 
+	// Hardware Average Enable
+	ADC0->SC3 |= 1 << 2; // Hardware average function enabled.
+
+	// Hardware Average Select
+	ADC0->SC3 |= 0B11; // 32 samples averaged
+
     ADC16_SetChannelConfig(ADC16_BASE, DEMO_ADC16_CHANNEL_GROUP, &adc16ChannelConfigStruct);
 
     while (1){
+        if(key_getPressEv(BOARD_SW_ID_3))
+        {
+        	DisableIRQ(ADC16_IRQn);
 
-    	if(true){
+            tara = last_conversion_value;
+            PRINTF("Se tara la balanza. ADC mide: %d\r\n", tara);
 
-    	}
+            EnableIRQ(ADC16_IRQn);
+        }
+
+        PRINTF("Peso: %d\r\n",(int)((last_conversion_value - tara)*k_instr));
     }
+}
+
+void SysTick_Handler(void)
+{
+	key_periodicTask1ms();
 }
