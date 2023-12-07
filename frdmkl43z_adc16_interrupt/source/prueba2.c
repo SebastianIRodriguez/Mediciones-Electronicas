@@ -37,9 +37,10 @@ const float k_instr = 1.0f;
 
 void handle_measured_weight(uint32_t adc_value) {
     uint32_t tara = 0;
-    float weight = (adc_value - tara) * k_instr;
+    int weight = adc_value - tara;
+    //float weight = (adc_value - tara) * k_instr;
     //FIJATE QUE ACA CREO QUE HABIA QUE HACER ALGO PARA PODER MOSTRAR LOS FLOTANTES
-    PRINTF("Peso: %.0f", weight); 
+    PRINTF("Peso: %d\r\n", weight);
 }
 
 
@@ -80,5 +81,12 @@ int main(void)
     adc16ChannelConfigStruct.channelNumber                        = DEMO_ADC16_USER_CHANNEL;
     adc16ChannelConfigStruct.enableInterruptOnConversionCompleted = true; /* Enable the interrupt. */
 
-    while (1){}
+    ADC16_SetChannelConfig(ADC16_BASE, DEMO_ADC16_CHANNEL_GROUP, &adc16ChannelConfigStruct);
+
+    while (1){
+
+    	if(true){
+
+    	}
+    }
 }

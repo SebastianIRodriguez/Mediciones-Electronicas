@@ -12,7 +12,7 @@
 
 #include "pin_mux.h"
 #include "clock_config.h"
-
+#include "SD2_board.h"
 #include "key.h"
 /*******************************************************************************
  * Definitions
@@ -40,18 +40,29 @@ const float k_instr = 1.0f;
  * Code
  ******************************************************************************/
 
-void handle_measured_weight(uint32_t adc_value) {
-    float weight = (adc_value - tara) * k_instr;
+/*void handle_measured_weight(uint32_t adc_value) {
+    //float weight = (adc_value - tara) * k_instr;
     //FIJATE QUE ACA CREO QUE HABIA QUE HACER ALGO PARA PODER MOSTRAR LOS FLOTANTES
-    PRINTF("Peso: %.0f", weight);
-}
+    int weight = adc_value - tara;
+    //float weight = (adc_value - tara) * k_instr;
+    //FIJATE QUE ACA CREO QUE HABIA QUE HACER ALGO PARA PODER MOSTRAR LOS FLOTANTES
+    //PRINTF("Peso: %.0f\r\n", weight);
+    PRINTF("Peso: %d\r\n", weight);
+}*/
 
 void ADC0_IRQHandler(void)
 {
     /* Read conversion result to clear the conversion completed flag. */
     uint32_t g_Adc16ConversionValue = ADC16_GetChannelConversionValue(ADC16_BASE, DEMO_ADC16_CHANNEL_GROUP);
-    handle_measured_weight(g_Adc16ConversionValue);
+    //handle_measured_weight(g_Adc16ConversionValue);
     last_conversion_value = g_Adc16ConversionValue;
+    int weight = g_Adc16ConversionValue - tara;
+    //float weight = (adc_value - tara) * k_instr;
+    //FIJATE QUE ACA CREO QUE HABIA QUE HACER ALGO PARA PODER MOSTRAR LOS FLOTANTES
+    //PRINTF("Peso: %.0f\r\n", weight);
+    PRINTF("Peso: %d\r\n", weight);
+
+    //SDK_ISR_EXIT_BARRIER;
 }
 
 int main(void)
@@ -64,6 +75,9 @@ int main(void)
     BOARD_InitDebugConsole();
     EnableIRQ(ADC16_IRQn);
 
+    board_init();
+    key_init();
+
     SysTick_Config(SystemCoreClock / 1000U);
 
     PRINTF("\r\nBALANZA DIGITAL - Made by Rafagani and Co.\r\n");
@@ -72,7 +86,7 @@ int main(void)
 
     adc16ConfigStruct.referenceVoltageSource = kADC16_ReferenceVoltageSourceValt;
     adc16ConfigStruct.clockSource = kADC16_ClockSourceAlt1; // BUSCLK / 2
-    adc16ConfigStruct.enableAsynchronousClock = true;
+    adc16ConfigStruct.enableAsynchronousClock = false;
     adc16ConfigStruct.clockDivider = kADC16_ClockDivider8;
     adc16ConfigStruct.resolution = kADC16_ResolutionSE12Bit;
     adc16ConfigStruct.longSampleMode = kADC16_LongSampleCycle24;
@@ -86,11 +100,14 @@ int main(void)
     adc16ChannelConfigStruct.channelNumber                        = DEMO_ADC16_USER_CHANNEL;
     adc16ChannelConfigStruct.enableInterruptOnConversionCompleted = true; /* Enable the interrupt. */
 
-    while (1){
-        if(key_getPressEv(BOARD_SW_ID_1)) {
+    ADC16_SetChannelConfig(ADC16_BASE, DEMO_ADC16_CHANNEL_GROUP, &adc16ChannelConfigStruct);
+
+    while (true){
+        if(key_getPressEv(BOARD_SW_ID_3))
+        {
             tara = last_conversion_value;
-            PRINTF("Se tara la balanza. ADC mide: %d", tara);
-        };
+            PRINTF("Se tara la balanza. ADC mide: %d\r\n", tara);
+        }
     }
 }
 
