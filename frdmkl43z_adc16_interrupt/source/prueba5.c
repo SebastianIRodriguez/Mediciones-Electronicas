@@ -30,10 +30,10 @@
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-const float k_instr = 1.0f;
+const float k_instr = 0.28125f;
 
-volatile uint32_t last_conversion_value;
-volatile uint32_t tara;
+volatile int last_conversion_value;
+volatile int tara;
 
 volatile bool new_measurement_available = false;
 
@@ -110,9 +110,13 @@ int main(void)
         if(new_measurement_available) {
             DisableIRQ(ADC16_IRQn);
 
-            PRINTF("Peso: %d\r\n",(int)((last_conversion_value - tara) * k_instr));
+            int peso = (int)((last_conversion_value - tara) * k_instr);
+            int resto = peso % 10;
+            int peso_normalizado = (resto > 5) ? (peso + 10 - resto) : (peso - resto);
+            PRINTF("Peso: %d gramos\r\n",(peso > 0) ? peso : 0);
+            PRINTF("Peso normalizado: %d gramos\r\n",(peso_normalizado > 0) ? peso_normalizado : 0);
             new_measurement_available = false;
-            
+
             EnableIRQ(ADC16_IRQn);
         }
     }
