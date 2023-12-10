@@ -49,8 +49,19 @@ adc16_channel_config_t adc16ChannelConfigStruct;
 void ADC0_IRQHandler(void)
 {
     /* Read conversion result to clear the conversion completed flag. */
-    last_conversion_value = ADC16_GetChannelConversionValue(ADC16_BASE, DEMO_ADC16_CHANNEL_GROUP);
-    new_measurement_available = true;
+	static int cant_conversiones = 0;
+	static uint32_t acumulacion = 0;
+
+	acumulacion += ADC16_GetChannelConversionValue(ADC16_BASE, DEMO_ADC16_CHANNEL_GROUP);
+    cant_conversiones ++;
+
+    if(cant_conversiones >= 10)
+    {
+    	last_conversion_value = acumulacion / 10;
+    	acumulacion = 0;
+    	cant_conversiones = 0;
+    	new_measurement_available = true;
+    }
 }
 
 int main(void)
@@ -124,10 +135,12 @@ int main(void)
 
 void SysTick_Handler(void)
 {
-    if (timer == 500) {
+
+    if (timer == 50) {
         timer = 0;
         ADC16_SetChannelConfig(ADC16_BASE, DEMO_ADC16_CHANNEL_GROUP, &adc16ChannelConfigStruct);
     }
+
     timer++;
 
 	key_periodicTask1ms();
